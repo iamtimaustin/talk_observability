@@ -1,16 +1,15 @@
 ---
 # try also 'default' to start simple
 theme: default
-background: https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop
+# apply UnoCSS classes to the current slide for a gorgeous dark background
+class: text-center my-auto bg-[#0b0415] overflow-hidden
 # some information about your slides (markdown enabled)
-title: Observability in Practice
+title: Observability by Design
 info: |
   ## Observability in Practice: logs, metrics, and APM traces with Datadog
   Presentation slides for developers.
 
   Learn more at [Sli.dev](https://sli.dev)
-# apply UnoCSS classes to the current slide
-class: text-center my-auto
 # https://sli.dev/features/drawing
 drawings:
   persist: false
@@ -22,31 +21,29 @@ comark: true
 duration: 60min
 ---
 
-# Observability in Practice
-### Logs, Metrics, and APM Traces with Datadog
+<div class="flex flex-col items-center justify-center select-none relative py-12">
+  <!-- Glowing mesh background effects -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl -z-10"></div>
+  <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
 
-<div class="mt-8 opacity-80 text-lg">
-  A Dev Talk for Mid-Senior Engineers
-</div>
-
-<div class="mt-16 text-sm opacity-60">
-  Datadog Observability Series • 60-70 min
+  <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-200 to-pink-400 leading-tight">
+    Observability by Design
+  </h1>
+<h2>Seeing through the Noise</h2>
 </div>
 
 <style>
-h1 {
-  background-color: #7000FF;
-  background-image: linear-gradient(45deg, #7000FF 10%, #E000FF 90%);
-  background-size: 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
+h1, h3, div {
+  /* Soft drop shadow for perfect high-contrast anti-aliasing without heavy borders */
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 </style>
 
 <!--
-The last comment block of each slide will be treated as slide notes. It will be visible and editable in Presenter Mode along with the slide.
+- Welcome / framing: systems you can reason about, not just systems that run
+  - Three pillars: logs, metrics, traces
+  - Two real production case studies
+  - Concrete habits to take back this week
 -->
 
 ---
@@ -55,21 +52,19 @@ transition: fade-out
 
 # Talk Overview
 
-A production-grounded session designed to shift how you reason about your codebase.
-
-<div class="grid grid-cols-2 gap-8 mt-8">
+<div class="grid grid-cols-1 gap-8 mt-8">
   <div class="p-6 rounded-lg border border-purple-500/20 bg-purple-900/10 backdrop-blur-md text-left">
     <h3 class="text-purple-400 font-bold mb-2">🎯 Objective</h3>
-    <p class="text-sm opacity-90 leading-relaxed">Not just explaining the tooling, but changing how you write and review code to make systems fundamentally <strong>reason-able</strong>.</p>
+    <p class="text-sm opacity-90 leading-relaxed">Explain the tooling, and patterns how to write and review code to make systems fundamentally <strong>reason-able</strong>.</p>
   </div>
-  <div class="p-6 rounded-lg border border-purple-500/20 bg-purple-900/10 backdrop-blur-md text-left">
+  <!-- <div class="p-6 rounded-lg border border-purple-500/20 bg-purple-900/10 backdrop-blur-md text-left">
     <h3 class="text-purple-400 font-bold mb-2">⏱️ Runtime</h3>
     <p class="text-sm opacity-90 leading-relaxed">60-70 Minutes including Q&A. Grounded in real Datadog usage and two production case studies.</p>
-  </div>
+  </div> -->
 </div>
 
 <div class="mt-8 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/40 text-left">
-  <span class="font-semibold text-purple-400">The Core Pillars We'll Cover:</span>
+  <span class="font-semibold text-purple-400">We'll Cover:</span>
   <div class="flex gap-8 mt-4 text-sm justify-around text-center">
     <div>🪵 <strong class="text-purple-300 block mt-1">Logs</strong><span class="opacity-60 text-xs">What happened & when</span></div>
     <div>📊 <strong class="text-purple-300 block mt-1">Metrics</strong><span class="opacity-60 text-xs">Behavior over time</span></div>
@@ -77,18 +72,25 @@ A production-grounded session designed to shift how you reason about your codeba
   </div>
 </div>
 
+<!--
+- Narrow scope: core mental model + daily habits, not every Datadog feature
+- Two outcomes for the audience:
+  - Look at a PR and ask better observability questions
+  - Know which tool to reach for first when something goes wrong
+-->
+
 ---
 transition: slide-up
 ---
 
-# 01 · The Pain Before Observability
-<div class="text-lg text-red-400 font-semibold mb-4 text-left">A familiar scene: Production is down.</div>
+# 01 · Before Observability
+<div class="text-lg text-red-400 font-semibold mb-4 text-left">Situation: Production is down.</div>
 
 <div class="grid grid-cols-3 gap-4 mt-6 text-left">
   <div class="p-4 rounded bg-red-900/10 border border-red-500/20">
     <div class="text-2xl mb-2">💬</div>
     <span class="font-bold text-sm block mb-1 text-red-300">Slack Guessing</span>
-    <p class="text-xs opacity-75 leading-relaxed">Engineers throwing out wild theories in incident channels with zero data.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Throwing out theories in incident channels with zero data.</p>
   </div>
   <div class="p-4 rounded bg-red-900/10 border border-red-500/20">
     <div class="text-2xl mb-2">🪵</div>
@@ -98,15 +100,23 @@ transition: slide-up
   <div class="p-4 rounded bg-red-900/10 border border-red-500/20">
     <div class="text-2xl mb-2">🔄</div>
     <span class="font-bold text-sm block mb-1 text-red-300">Hopeful Re-deploying</span>
-    <p class="text-xs opacity-75 leading-relaxed">"Let's just bounce the service and see if it clears the error state."</p>
+    <p class="text-xs opacity-75 leading-relaxed">"Let's just restart the service and see if it clears the error state."</p>
   </div>
 </div>
 
 <div class="mt-8 border-l-4 border-red-500 pl-4 py-2 bg-red-500/5 text-left">
   <p class="italic text-sm">
-    "This is the world of <strong>monitoring</strong> without <strong>observability</strong>. You know the system is sick, but you have no way to ask arbitrary questions about its internal behavior."
+    This is <strong>monitoring</strong> without <strong>observability</strong>.<br />You know the system is sick, but you have no way to ask arbitrary questions about its internal behavior.
   </p>
 </div>
+
+<!--
+- Ask the room: who's been in an incident where the main activity was Slack speculation?
+- Key distinction: monitoring vs. observability
+  - Monitoring: tells you something is wrong
+  - Observability: lets you ask arbitrary questions about *why*
+  - "Error rate is up" = monitoring. Filtering to a user, tracing to a query, seeing the exact line = observability
+-->
 
 ---
 layout: center
@@ -120,15 +130,24 @@ class: text-center
 </div>
 
 <div class="max-w-xl mx-auto text-sm opacity-80 leading-relaxed">
-  Our goal isn't just to keep the lights on; it's to build systems where, at 2 AM, an on-call engineer can confidently answer:
-  <div class="text-purple-400 mt-2 font-mono">"Exactly why did this specific user's checkout fail?"</div>
+  Our goal shouldn't be to just to keep the lights on; it should be to build systems where, at 2 AM, an on-call engineer can confidently answer:
+  <div class="text-purple-400 mt-2 font-mono">"Why did this specific user's tip distribution fail?"</div>
 </div>
+
+<!--
+- Goal isn't uptime — uptime is table stakes. Goal is *understanding*
+- Black boxes fail in slow, invisible ways
+- The example question is deliberately specific
+  - Not "why is the error rate high?"
+  - "Why did *this user's* tip distribution fail?" — customer + time + business specific
+  - That specificity is the bar we're aiming for
+-->
 
 ---
 
 # 02 · The Three Pillars — A Mental Model
 
-Before touching Datadog, we need a shared understanding of what these tools actually do.
+Before touching Datadog, we need a shared understanding of what tools we can use.
 
 <div class="grid grid-cols-3 gap-6 mt-6 text-left">
   <div class="p-5 rounded-lg bg-gray-800/50 border border-gray-700">
@@ -148,6 +167,14 @@ Before touching Datadog, we need a shared understanding of what these tools actu
   </div>
 </div>
 
+<!--
+- Three complementary tools, not substitutes
+  - Logs: most granular, but don't aggregate well
+  - Metrics: great for trends, lose per-request detail
+  - Traces: bridge the two — full journey of one request, linked to logs and metrics
+- Power is in using all three together — cover each individually, then connect them
+-->
+
 ---
 layout: two-cols
 layoutClass: gap-12
@@ -157,9 +184,9 @@ layoutClass: gap-12
 
 When a patient arrives in the ER, a doctor doesn't just guess or start random surgery. They use a structured diagnostic pipeline.
 
-<div class="mt-8 border-l-4 border-purple-500 pl-4 py-2 bg-purple-500/5 text-left">
+<div class="mt-8 border-l-4 border-purple-500 pl-4 pr-1 py-2 bg-purple-500/5 text-left">
   <span class="font-semibold text-purple-400 text-sm">Unified Diagnostic Workflow:</span>
-  <p class="text-xs opacity-75 mt-1 leading-relaxed">You rarely need all three diagnostic layers at once, but when you are diagnosing a complex pathology, they must all be available and <strong>perfectly aligned</strong>.</p>
+  <p class="text-xs opacity-75 mt-1 leading-relaxed">You rarely need all three diagnostic layers at once, but when you are diagnosing a complex pathology, having them all available and <strong>aligned</strong> makes it easy.</p>
 </div>
 
 ::right::
@@ -188,6 +215,15 @@ When a patient arrives in the ER, a doctor doesn't just guess or start random su
   </div>
 </div>
 
+<!--
+- Doctors don't start surgery because a patient looks pale — they have a protocol
+- Same discipline: use tools in order of cost
+  - Metrics first: is the error rate elevated?
+  - Logs second: what events preceded the failure?
+  - Traces last: only if you need the exact execution path
+- Each layer is progressively more expensive to generate and store
+-->
+
 ---
 layout: two-cols
 layoutClass: gap-12
@@ -195,7 +231,7 @@ layoutClass: gap-12
 
 # Unified Observability
 
-The magic of Datadog isn't having three separate tabs. It's the **instant correlation pivot** between them.
+The magic of Datadog isn't having three separate tabs. It's being able to **investigate** and **correlate** facts.
 
 <div class="mt-8 border-l-4 border-purple-500 pl-4 py-2 bg-purple-500/5 text-left">
   <span class="font-semibold text-purple-400 text-sm">Rapid MTTR:</span>
@@ -205,23 +241,30 @@ The magic of Datadog isn't having three separate tabs. It's the **instant correl
 </div>
 
 <div class="mt-8 text-sm opacity-80 text-left">
-  This correlation loop cuts incident resolution time from <strong>hours</strong> to <strong>seconds</strong>.
+  This correlation loop cuts incident resolution time from <strong>hours</strong> to <strong>minutes</strong>.
 </div>
 
 ::right::
 
 ```mermaid {theme: 'neutral', scale: 0.7}
 flowchart TD
-    A[📈 Metric Spike] -->|Click to Pivot| B[🗺️ Trace View]
+    A[📈 Metric Spike] --> B[🗺️ Trace View]
     B -->|Identify Hotspot| C[🔍 Context Span]
-    C -->|Extract Logs| D[🪵 Correlated Logs]
-    D -->|Actionable Bug| E[🛠️ Root Cause Resolved!]
+    C -->|View Associated Logs| D[🪵 Correlated Logs]
+    D -->|Actionable Bug| E[🛠️ Root Cause]
     style A fill:#7000FF,stroke:#fff,color:#fff
     style B fill:#3e1c69,stroke:#fff,color:#fff
     style C fill:#1e1035,stroke:#fff,color:#fff
     style D fill:#1e1035,stroke:#fff,color:#fff
     style E fill:#052e16,stroke:#22c55e,color:#fff
 ```
+
+<!--
+- MTTR: every extra minute is lost revenue, trust, engineer stress
+- Walk the diagram: metric alert → traces in window → span drill-down → correlated logs
+- Entire loop can take under 5 minutes
+  - But only if trace_id is consistently propagated and logged everywhere
+-->
 
 ---
 layout: two-cols
@@ -259,8 +302,19 @@ Logs are not for reading. Logs are for **querying**.
   <ul class="text-[11px] list-disc pl-4 mt-2 space-y-1 opacity-75">
     <li>Datadog indexes every field instantly</li>
     <li>Filter, group, and alert on exact keys</li>
+    <li>Queries inform the scope and priority to address</li>
   </ul>
 </div>
+
+<!--
+- Unstructured log is write-only — readable by humans, not queryable by machines
+  - Can't group by user_id, can't count error codes, can't alert on rate
+- Structured JSON: every key-value pair is filterable and aggregatable
+- Point out trace_id specifically — that field is what links the log to the APM trace
+  - Without it, logs and traces are two separate islands
+- Single most important habit: emit JSON, always
+  - parsers exist in the ingest pipelines, but these can be finnicky to configure
+-->
 
 ---
 
@@ -275,21 +329,31 @@ To make logs highly queryable under pressure, ensure these fields are automatica
       <p class="text-xs opacity-75 leading-relaxed">The absolute thread. Connects the log line directly to the APM trace waterfall.</p>
     </div>
     <div class="p-3 bg-gray-800/40 rounded border-l-4 border-purple-500">
-      <strong class="text-purple-400 text-sm font-mono block mb-1">user_id / tenant_id</strong>
+      <strong class="text-purple-400 text-sm font-mono block mb-1">user_id / (tenant)_id</strong>
       <p class="text-xs opacity-75 leading-relaxed">Contextual metadata. Allows filtering logs for a specific customer report.</p>
     </div>
   </div>
   <div class="space-y-4">
     <div class="p-3 bg-gray-800/40 rounded border-l-4 border-purple-500">
       <strong class="text-purple-400 text-sm font-mono block mb-1">duration_ms</strong>
-      <p class="text-xs opacity-75 leading-relaxed">Timing data. Helps filter out slow operations in the log analytics tab.</p>
+      <p class="text-xs opacity-75 leading-relaxed">Timing data on handler and job logs. Helps identify slow operations in the log analytics tab.</p>
     </div>
     <div class="p-3 bg-gray-800/40 rounded border-l-4 border-purple-500">
       <strong class="text-purple-400 text-sm font-mono block mb-1">error_code</strong>
-      <p class="text-xs opacity-75 leading-relaxed">Standardized codes (e.g. `rate_limit_exceeded`) rather than messy custom string messages.</p>
+      <p class="text-xs opacity-75 leading-relaxed">Standardized codes (e.g. `rate_limit_exceeded`) rather than custom string messages.</p>
     </div>
   </div>
 </div>
+
+<!--
+- Four fields = minimum viable log
+- trace_id: logging framework should inject this automatically from active span context
+- user_id / tenant_id: answers "what happened to this customer?" without DB access
+- duration_ms: turns log explorer into a performance profiler — P95 per endpoint without APM
+- error_code: standardized codes enable specific alerting
+  - `card_declined` has a different business response than `network_timeout`
+  - Custom string messages do not aggregate
+-->
 
 ---
 
@@ -314,7 +378,7 @@ If everything is flagged as `ERROR`, nothing is. Use strict heuristics to mainta
     <tr class="border-b border-gray-800">
       <td class="p-3"><span class="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded text-xs font-mono">INFO</span></td>
       <td class="p-3">Normal system events worth recording (e.g. server startup, payment done).</td>
-      <td class="p-3 opacity-80">Emitted normally, highly throttled.</td>
+      <td class="p-3 opacity-80">Emitted normally; may be sampled in high-volume services.</td>
     </tr>
     <tr class="border-b border-gray-800">
       <td class="p-3"><span class="bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded text-xs font-mono">WARN</span></td>
@@ -323,11 +387,26 @@ If everything is flagged as `ERROR`, nothing is. Use strict heuristics to mainta
     </tr>
     <tr>
       <td class="p-3"><span class="bg-red-500/20 text-red-300 px-2 py-0.5 rounded text-xs font-mono">ERROR</span></td>
-      <td class="p-3">Operation failed. A human needs to investigate or be paged.</td>
+      <td class="p-3">Operation failed. A human needs to investigate or be paged.*</td>
+      <td class="p-3 font-semibold text-red-400">Triggers alert thresholds and alarms.</td>
+    </tr>
+    <tr>
+      <td class="p-3"><span class="bg-red-500/30 text-red-400 px-2 py-0.5 rounded text-xs font-mono">CRITICAL</span></td>
+      <td class="p-3">A service is down. A human needs to investigate or be paged.</td>
       <td class="p-3 font-semibold text-red-400">Triggers alert thresholds and alarms.</td>
     </tr>
   </tbody>
 </table>
+
+<!--
+- Level inflation = alert fatigue — teams learn to ignore a noisy pager
+- Strict rule: ERROR means a human must act
+- WARN is a leading indicator — a spike in WARN retries tells you a storm is coming
+- Code review tip: push back on ERROR logs with a catch block that returns a graceful fallback
+  - If you handled it, it's a WARN at most
+- note on (*):
+  - when starting out, often have error logs which are not errors so there can be exceptions to this, but this is a "North Star" -- something that we should be aiming towards in our work over time
+-->
 
 ---
 
@@ -356,11 +435,19 @@ Metrics aggregated over time provide quantitative evidence of system behavior.
   </div>
 </div>
 
+<!--
+- Don't need to memorize all types — know when to reach for each
+- Counters: things that only go up (requests, jobs, errors) — useful as rates, not raw values
+- Gauges: current state right now — queue depth, active connections, memory
+- Histograms: most powerful, most expensive — full distribution, any percentile after the fact
+  - Use for anything latency-related so you can query p95/p99 without re-instrumenting
+-->
+
 ---
 
 # The RED Method
 
-The industry standard framework for measuring service health. Implement this for every endpoint.
+The industry standard framework for measuring service health. Implement this for user-facing service operation.
 
 <div class="grid grid-cols-3 gap-6 mt-8 text-left">
   <div class="p-5 rounded-lg border-l-4 border-blue-500 bg-blue-900/10">
@@ -378,10 +465,24 @@ The industry standard framework for measuring service health. Implement this for
   <div class="p-5 rounded-lg border-l-4 border-purple-500 bg-purple-900/10">
     <span class="text-xs uppercase font-bold text-purple-400 block mb-1">D</span>
     <h3 class="text-lg font-bold mb-1">Duration</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Response times distribution. Focus exclusively on p95 or p99 latencies.</p>
-    <div class="mt-8 text-[11px] font-mono bg-black/30 p-2 rounded">p95:requests.latency{*}</div>
+    <p class="text-xs opacity-75 leading-relaxed">Response times distribution. Focus on p95 or p99 latencies, not averages.</p>
+    <div class="mt-8 text-[11px] font-mono bg-black/30 p-2 rounded">p95:requests.duration{*}</div>
   </div>
 </div>
+
+<!--
+- Coined by Tom Wilkie at Weaveworks ~2015, de facto standard for request-driven services
+- Rate: demand signal — a *drop* in rate is as alarming as a spike (requests not arriving)
+- Errors: correctness signal
+  - Track both 5xx responses *and* app-level errors that return 200 with an error payload
+  - Those are invisible unless explicitly instrumented
+- Duration: performance signal — averages lie
+  - p99 of 8s can hide behind a p50 of 80ms — always alert on p95 or p99
+- Common question: "what about CPU/memory?" → that's the USE method (infra resources)
+  - RED is for services; they complement each other
+- If your team implemented RED on every endpoint, you'd already be ahead of most teams
+-->
+
 
 ---
 
@@ -400,49 +501,74 @@ Infrastructure metrics are table stakes. Custom business metrics are what drive 
     <div class="mt-8 text-[11px] font-mono opacity-50 bg-black/10 p-1 rounded">system.cpu.idle, system.mem.used</div>
   </div>
   <div class="p-5 bg-gray-800/40 rounded-lg border border-gray-700 text-sm">
-    <h3 class="text-purple-400 font-bold mb-3">💼 Custom Conversion Funnel</h3>
+    <h3 class="text-purple-400 font-bold mb-3">💼 Custom Location Health</h3>
     <ul class="space-y-2 list-disc pl-4 opacity-80 text-xs leading-relaxed">
-      <li>How many checkout funnels were started?</li>
-      <li>What is the payment success percentage?</li>
-      <li>Where are users dropping off?</li>
+      <li>How many employees do not have AptPay profiles?</li>
+      <li>How many integration mappings are out-dated?</li>
+      <li>How many tip distributions are never completed?</li>
     </ul>
-    <div class="mt-8 text-[11px] font-mono opacity-50 bg-black/10 p-1 rounded">orders.checkout.started, orders.checkout.completed</div>
+    <div class="mt-8 text-[11px] font-mono opacity-50 bg-black/10 p-1 rounded">adt.distribution.started, adt.distribution.completed</div>
   </div>
 </div>
 
 <div class="mt-6 text-center text-sm font-semibold text-purple-300">
-  💡 Crucial rule: Agree on team-wide tagging standards (e.g. <code>env:prod</code>, <code>service:checkout</code>) from day one.
+  💡 Agree on team-wide tagging standards (e.g. <code>env:prod</code>, <code>service:adt</code>) early.
 </div>
+
+<!--
+- Infra metrics = the floor — CPU pegged means nothing else matters
+- But infra metrics say nothing about business health
+  - Silent revenue loss can happen with perfectly healthy infra metrics
+  - e.g. payment processor errors being caught and swallowed
+- Custom metrics close that gap — track what matters to the business
+- Tagging cost warning: every new tag combination = new metric series = higher bill
+  - Agree on a taxonomy before shipping custom metrics to prod
+-->
 
 ---
 layout: two-cols
-layoutClass: gap-12
+layoutClass: gap-4 grid-cols-[2fr_1fr]
 ---
 
-# 05 · Case Study: Conversion Funnel
+# 05 · Case Study: Background Job Queue
 
-Using structured custom metrics to diagnose business-level degradation.
+Metrics surfaced a system that had quietly grown beyond its design limits.
 
-<div class="mt-8 space-y-6 text-sm text-left">
+<div class="mt-6 space-y-4 text-sm text-left">
   <div>
-    <h3 class="text-purple-400 font-bold mb-1">🔍 The Discovery</h3>
-    <p class="text-xs opacity-75 leading-relaxed">A Datadog dashboard monitored checkout. We spotted a massive delta between <code>orders.checkout.started</code> and <code>completed</code>.</p>
+    <h3 class="text-purple-400 font-bold mb-1">🚨 The Alert</h3>
+    <p class="text-xs opacity-75 leading-relaxed">A queue-depth metric breached its threshold. The first signal anyone had — the degradation had been invisible until it cascaded.</p>
   </div>
   <div>
     <h3 class="text-purple-400 font-bold mb-1">📊 The Evidence</h3>
-    <p class="text-xs opacity-75 leading-relaxed">A <strong>78.8% conversion rate</strong> was observed, but the <strong>5xx error rate spiked to 0.89%</strong> during peak traffic, triggering page alarms.</p>
+    <p class="text-xs opacity-75 leading-relaxed">The system was running <strong>52M jobs/day</strong>, consuming <strong>450 compute-hours/day</strong> across <strong>40 dedicated workers</strong>. Fan-out had outgrown the batch architecture entirely.</p>
   </div>
   <div>
     <h3 class="text-purple-400 font-bold mb-1">💡 The Outcome</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Turned "I think payment is slow" into "I know payment fails for 1.1% of checkouts." We got the roadmap allocation to resolve it.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Data gave the team confidence to pursue an event-driven rewrite. Result: <strong>52M → 2M jobs</strong>, <strong>450h → 7h compute</strong>, <strong>40 fixed workers → 10 elastic workers</strong>.</p>
   </div>
 </div>
 
 ::right::
 
-<div class="flex items-center justify-center h-full mt-4">
-  <img class="rounded border border-purple-500/20 shadow-lg shadow-purple-500/10 max-h-80 object-contain" src="./public/assets/datadog_metrics_dashboard.png" alt="Datadog Metrics Dashboard" />
+<div class="grid grid-rows-4 gap-1.5 mt-2 items-end">
+  <img class="rounded border border-purple-500/20 shadow-md max-h-26 w-auto ml-auto" src="./public/assets/dd-queue.png" alt="Queue depth alarm" />
+  <img class="rounded border border-purple-500/20 shadow-md max-h-26 w-auto ml-auto" src="./public/assets/dd-job-counts.png" alt="Job counts" />
+  <img class="rounded border border-purple-500/20 shadow-md max-h-26 w-auto ml-auto" src="./public/assets/dd-compute-time.png" alt="Compute time" />
+  <img class="rounded border border-purple-500/20 shadow-md max-h-26 w-auto ml-auto" src="./public/assets/dd-tasks.png" alt="Task processes" />
 </div>
+
+<!--
+- System designed for a much smaller customer base — naive batch, perfectly reasonable at the time
+- Usage grew geometrically; fan-out outpaced drain speed → self-reinforcing cascade
+- Immediate fix: drain to a holding queue — only possible because we had a metric to confirm recovery
+- Making the architectural case:
+  - Move to event-driven (state changes, not scheduled scans)
+  - Some pushback on unfamiliar patterns
+  - The numbers made the argument undeniable — without instrumentation, it would have been guesswork
+- After rewrite: 52M→2M jobs, 450h→7h compute, 40 fixed→10 elastic workers
+- Key point: this wasn't a 2 AM incident — it was a slow, invisible degradation that metrics caught first
+-->
 
 ---
 
@@ -461,11 +587,18 @@ Logs and metrics tell you *that* something is broken. Traces tell you *where*.
   <div class="p-5 bg-gray-800/40 rounded-lg border border-gray-700">
     <h3 class="text-green-400 font-bold text-sm mb-2">With Distributed Tracing</h3>
     <p class="text-xs opacity-75 leading-relaxed">
-      A request fails. You view the trace waterfall. The system shows that service A waited 5.2s for service B, which was blocked by a single un-indexed SQL query on PostgreSQL.
+      A request fails. You view the trace waterfall. The system shows that service A waited 5.2s for service B, which was blocked by a single un-indexed N+1 SQL queries on PostgreSQL.
     </p>
-    <div class="mt-6 text-xs font-bold text-green-400">🚀 Resolution Time: Seconds</div>
+    <div class="mt-6 text-xs font-bold text-green-400">🚀 Resolution Time: Minutes</div>
   </div>
 </div>
+
+<!--
+- Logs and metrics are retrospective — they tell you *that* and *when*, not *why*
+- Tracing is causal: which service called which, in what order, how long each hop took
+- Without tracing: hypothesis → instrument → deploy → repro → analyze (repeated)
+- With tracing: the whole loop collapses into navigating a UI
+-->
 
 ---
 
@@ -492,6 +625,15 @@ Understanding the engineering mechanics of distributed tracing.
   ⚠️ Frameworks auto-instrument standard calls, but you must define <strong>custom spans</strong> around slow background tasks and complex business logic.
 </div>
 
+<!--
+- Trace = container; spans = building blocks; parent-child relationship creates the waterfall
+- Context propagation is where most teams get it wrong
+  - When you enqueue a job or fire an async task: serialize trace_id + span_id into the payload
+  - Deserialize on the other side — otherwise the job runs as an orphaned trace
+- Frameworks auto-instrument HTTP + DB queries
+  - Your own async tasks and scheduled jobs need explicit instrumentation
+-->
+
 ---
 
 # Reading a Waterfall View
@@ -513,11 +655,20 @@ How to spot architectural performance bugs from a trace layout.
   </div>
 </div>
 
+<!--
+- Waterfall can look overwhelming — focus on three signals only
+- Ignore narrow spans — thin = fast = not your problem
+- Gaps between parent and child: unaccounted time, un-instrumented work
+- N+1 pattern: 50 identical span names stacked vertically
+  - `SELECT` inside a `for` loop — classic ORM foot-gun
+  - Fixed with a single `includes()` or `prefetch_related()`
+-->
+
 ---
 
 # 07 · Case Study: Flame Graph Literacy
 
-Before showing the finding, let's learn how to read a flame graph without looking lost in group meetings.
+Before showing the finding, let's make sure we can read a flame graph and spot the hotspot before someone else does.
 
 <div class="grid grid-cols-3 gap-6 mt-8 text-left">
   <div class="p-4 rounded bg-gray-800/40 border border-gray-700/60 text-sm">
@@ -526,7 +677,7 @@ Before showing the finding, let's learn how to read a flame graph without lookin
   </div>
   <div class="p-4 rounded bg-gray-800/40 border border-gray-700/60 text-sm">
     <h4 class="text-purple-400 font-bold mb-1">🥞 Y-Axis is Stack Depth</h4>
-    <p class="text-xs opacity-75 leading-relaxed">The bottom is the entry point (e.g. main handler), moving up to leaf-level execution code blocks.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Stack depth, not time. In Datadog's profiler the entry point is at the top, callees grow downward — the inverse of Brendan Gregg's classic layout.</p>
   </div>
   <div class="p-4 rounded bg-gray-800/40 border border-gray-700/60 text-sm">
     <h4 class="text-purple-400 font-bold mb-1">🚨 Wide Near Top</h4>
@@ -534,35 +685,60 @@ Before showing the finding, let's learn how to read a flame graph without lookin
   </div>
 </div>
 
+<div class="mt-6 flex justify-center">
+  <img class="rounded border border-purple-500/20 shadow-lg shadow-purple-500/10 max-h-40 object-contain" src="./public/assets/datadog-flamegraph.png" alt="Datadog Flame Graph" />
+</div>
+
+<!--
+- Point at the image before moving on
+- Entry point is at the top — outermost call, typically the request handler
+- Width = fraction of sampled CPU time for that function + everything it called
+- Wide near top with no wide children = doing real CPU work → hotspot
+- Wide but width comes from one wide child = just the call site, child is the actual cost
+-->
+
 ---
 layout: two-cols
-layoutClass: gap-12
+layoutClass: gap-6 grid-cols-[2fr_1fr]
 ---
 
 # Case Study: Resolving the Hotspot
 
-An unexpected database bottleneck is diagnosed under operational stress.
+Timeouts were happening. Metrics said everything else was fine. We generated a trace.
 
-<div class="mt-8 space-y-6 text-sm text-left font-light">
+<div class="mt-4 space-y-4 text-sm text-left font-light">
   <div>
-    <h3 class="text-purple-400 font-bold mb-1">📉 The Incident</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Our main API endpoint was timing out intermittently. Logs were flooded but showed no obvious trace.</p>
+    <h3 class="text-purple-400 font-bold mb-1">🚨 The Dead End</h3>
+    <p class="text-xs opacity-75 leading-relaxed">Requests were timing out in production. We believed we had already treated the worst offenders — but query metrics showed no slow SQL.</p>
   </div>
   <div>
     <h3 class="text-purple-400 font-bold mb-1">🔍 The Trace</h3>
-    <p class="text-xs opacity-75 leading-relaxed">The trace graph immediately isolated a <code>db_call</code> blocking for <strong>5.91 seconds</strong>. It was a <code>SELECT * FROM transaction_log</code> operation lacking an index.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Generating a trace revealed three patterns invisible to metrics: an <strong>automapper running in N² time</strong>, loops allocating memory that was never used, and data fetched but never read.</p>
   </div>
   <div>
-    <h3 class="text-purple-400 font-bold mb-1">🛠️ The Fix</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Added a composite index, reduced the span duration to 15ms, and instantly dropped p99 API latencies to double-digits.</p>
+    <h3 class="text-purple-400 font-bold mb-1">💡 The Outcome</h3>
+    <p class="text-xs opacity-75 leading-relaxed">Treating those three spans cut request time in half. The trace also exposed that report generation needed proper async processes — not just faster inline work.</p>
   </div>
 </div>
 
 ::right::
 
 <div class="flex items-center justify-center h-full mt-4">
-  <img class="rounded border border-purple-500/20 shadow-lg shadow-purple-500/10 max-h-80 object-contain" src="./public/assets/datadog_flame_graph.png" alt="Datadog Flame Graph" />
+  <img class="rounded border border-purple-500/20 shadow-lg shadow-purple-500/10 max-h-80 object-contain" src="./public/assets/request-flamegraph.png" alt="Request Flame Graph" />
 </div>
+
+<!--
+- Timeouts in prod; already done the obvious tuning pass — no bad SQL in query metrics
+- Felt out of ideas → decided to generate a trace
+- Three patterns the trace made immediately visible (metrics couldn't):
+  - Automapper called in a loop — O(n²), scaled catastrophically with payload size
+  - Loops allocating arrays/objects nothing ever consumed — wide spans, no children
+  - External calls fetching data the response never used — pure waste under load
+- None showed up in SQL metrics because none were slow SQL — application-layer inefficiencies
+- Result: treating those three spans cut request time in half
+- Bonus insight: report generation can't be micro-optimized — needs a proper async process
+  - The trace gave us evidence to make that architectural argument
+-->
 
 ---
 
@@ -575,11 +751,24 @@ Observability is not a feature you bolt on after the code is written. It is a co
   <p class="text-lg italic font-semibold leading-relaxed">
     "If this code breaks in production at 2am, can I confidently diagnose the root cause from Datadog dashboards and logs alone, without SSHing into a server or running a local test?"
   </p>
+  <p class="text-lg italic font-semibold leading-relaxed">
+    "Can I diagnose the root cause without jupyter access?"
+  </p>
 </div>
 
 <div class="mt-8 text-center text-sm opacity-80">
-  If the answer is **no**, your PR is not ready to ship.
+  If the answer is no, your PR is not ready to ship.
 </div>
+
+<!--
+- Separates teams with good observability from teams who just have Datadog installed
+- Can't be added retroactively without significant rework — design constraint, same as security
+- The heuristic is a forcing function: before opening a PR, simulate being on-call
+  - Can you find the failure?
+  - Can you find the specific user affected?
+  - Can you tell if it's a one-off or systemic?
+- If you can't answer from Datadog alone, the code isn't done yet
+-->
 
 ---
 
@@ -605,10 +794,21 @@ Transition these principles into daily coding practices:
     </div>
     <div class="p-3 bg-gray-800/40 rounded border-l-4 border-green-500">
       <strong class="text-green-300 block mb-1">🏷️ Consistent Tagging</strong>
-      <p class="text-xs opacity-75 leading-relaxed">Always attach key-value pairs (<code>env:prod</code>, <code>region:us-east</code>) to traces and custom events.</p>
+      <p class="text-xs opacity-75 leading-relaxed">Always attach low-cardinality key-value pairs (<code>env:prod</code>, <code>region:us-east</code>) to traces and custom events.</p>
+      <p class="text-[10px] text-yellow-400/70 mt-1.5 leading-relaxed">⚠️ New tags = new metric series = higher bill. Review with the team before adding.</p>
     </div>
   </div>
 </div>
+
+<!--
+- All four habits are near-zero cost once muscle memory
+- State changes: test — "would an on-call engineer understand this line with no other context?"
+- Exception hygiene: empty catch is one of the most dangerous prod patterns
+  - Silently swallows failures, system looks healthy while broken
+- Context propagation: trace_id goes in the task payload at spawn time, not reconstructed later
+- Tagging: before adding a new tag, ask if an existing tag achieves the same filtering
+  - Cardinality is money in Datadog
+-->
 
 ---
 
@@ -624,7 +824,7 @@ Make observability a mandatory review milestone. Ask these questions in every Pu
     </div>
     <div class="flex gap-2">
       <span class="text-purple-400 font-bold">2.</span>
-      <p class="opacity-85 leading-relaxed">"Are we capturing trace context through this new async rabbitMQ queue worker?"</p>
+      <p class="opacity-85 leading-relaxed">"Are we capturing trace context through this new async Celery task?"</p>
     </div>
   </div>
   <div class="space-y-4">
@@ -640,7 +840,7 @@ Make observability a mandatory review milestone. Ask these questions in every Pu
 </div>
 
 <div class="mt-8 p-4 rounded bg-gray-800/30 text-center text-xs border border-gray-700/50">
-  This shifts observability from a platform-team bottleneck to a **shared engineering discipline**.
+  This shifts observability from a platform-team bottleneck to a <strong>shared engineering discipline</strong>.
 </div>
 
 ---
@@ -687,7 +887,7 @@ How a unified observability platform streamlines real-world debugging:
 
 ---
 
-# 10 · Close: Where to Start on Monday
+# 10 · Close: Where to Start
 
 Abstract advice changes nothing. Try these three concrete tasks starting Monday morning:
 
@@ -695,17 +895,17 @@ Abstract advice changes nothing. Try these three concrete tasks starting Monday 
   <div class="p-5 rounded bg-gray-800/40 border border-gray-700/60">
     <div class="text-2xl mb-2">🪵</div>
     <h3 class="text-purple-400 font-bold text-sm mb-1">1. In Your Next PR</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Add just <strong>one</strong> structured field (e.g. <code>user_id</code> or <code>duration_ms</code>) to an existing raw string log.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Ask: Should this code path emit any <strong>logs</strong> or <strong>metrics</strong>?</p>
   </div>
   <div class="p-5 rounded bg-gray-800/40 border border-gray-700/60">
     <div class="text-2xl mb-2">📊</div>
     <h3 class="text-purple-400 font-bold text-sm mb-1">2. In Your Next Endpoint</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Implement the three <strong>RED Method metrics</strong> (Rate, Errors, Duration) using Datadog client libraries.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Find out how to find the three <strong>RED Method metrics</strong> (Rate, Errors, Duration) in Datadog after it ships.</p>
   </div>
   <div class="p-5 rounded bg-gray-800/40 border border-gray-700/60">
     <div class="text-2xl mb-2">🗺️</div>
     <h3 class="text-purple-400 font-bold text-sm mb-1">3. In Your Next Bugfix</h3>
-    <p class="text-xs opacity-75 leading-relaxed">Wrap the suspected bottleneck method in a <strong>custom tracer span</strong> to visualize it on the flame graph.</p>
+    <p class="text-xs opacity-75 leading-relaxed">Ask: What can I do to make this problem <strong>observable</strong> next time?</p>
   </div>
 </div>
 
@@ -722,9 +922,4 @@ class: text-center
 
 <div class="text-lg my-6 font-light">
   What observability blind spots or incidents have caught you off-guard?
-</div>
-
-<div class="text-xs opacity-50 space-y-1">
-  <p>Datadog Observability Series</p>
-  <p>Presented as an Internal Dev Talk</p>
 </div>
